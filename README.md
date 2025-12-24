@@ -2,7 +2,11 @@
 
 ![El Turix Logo](public/turix_logo.jpg)
 
+
 **El Turix** is a modern, responsive web application designed to keep track of scores for card games like **Rummy** and **Continental**. Built with a mobile-first approach, it allows you to easily manage players, track rounds, and view game history.
+
+### 🔗 [Live Demo](https://el-turix-score-2025.web.app)
+
 
 ## 🚀 Features
 
