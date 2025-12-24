@@ -11,9 +11,11 @@ import { Sidebar } from './components/Sidebar';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import type { Game, Player, Score, Round, GameType } from './types';
 import { Menu } from 'lucide-react';
+import { useLanguage } from './contexts/LanguageContext';
 
 const Dashboard = () => {
   const { data, saveGame, deleteGame, importData, exportData } = useLocalStorage();
+  const { t } = useLanguage();
 
   const [view, setView] = useState<'home' | 'history' | 'stats' | 'about'>('home');
   const [selectedGameType, setSelectedGameType] = useState<GameType>('rummy');
@@ -35,7 +37,7 @@ const Dashboard = () => {
   };
 
   const cancelGame = () => {
-    if (confirm('Are you sure you want to cancel this game? All progress will be lost.')) {
+    if (confirm(t.confirm_cancel)) {
       setActiveGame(null);
       setView('home');
     }
@@ -43,7 +45,7 @@ const Dashboard = () => {
 
   const handleStartGameRequest = (type: GameType) => {
     if (activeGame) {
-      if (confirm('Start new game? Current progress will be lost if not finished.')) {
+      if (confirm(t.confirm_new_game)) {
         setActiveGame(null);
         setView('home');
         setSelectedGameType(type);
@@ -149,7 +151,7 @@ const Dashboard = () => {
                 El Turix Scoreboard
               </h1>
               <h2 className="hidden lg:block font-bold text-slate-700 capitalize text-lg">
-                {view === 'home' ? (activeGame ? 'Active Match' : 'New Game') : view}
+                {view === 'home' ? (activeGame ? t.app_active_match : t.app_new_game) : (t as any)[`menu_${view}`] || view}
               </h2>
             </div>
 
@@ -160,15 +162,15 @@ const Dashboard = () => {
                     onClick={cancelGame}
                     className="text-xs font-bold text-slate-500 hover:text-red-600 px-3 py-1.5 transition-colors uppercase tracking-wide lg:px-4 lg:py-2 lg:text-sm lg:mr-2"
                   >
-                    Cancel
+                    {t.app_cancel}
                   </button>
                   <button
                     onClick={() => {
-                      if (confirm('Finish game and show results?')) finishGame();
+                      if (confirm(t.confirm_finish)) finishGame();
                     }}
                     className="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-full hover:bg-blue-100 transition-colors uppercase tracking-wide lg:bg-blue-600 lg:text-white lg:px-4 lg:py-2 lg:text-sm lg:hover:bg-blue-700 lg:shadow-md"
                   >
-                    Finish <span className="hidden lg:inline">Game</span>
+                    {t.app_finish}
                   </button>
                 </>
               )}

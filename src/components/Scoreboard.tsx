@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Trophy, History, Edit2, Check } from 'lucide-react';
 import type { Game, Score } from '../types';
 import { InlineRoundInput } from './InlineRoundInput';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface ScoreboardProps {
     game: Game;
@@ -10,6 +11,7 @@ interface ScoreboardProps {
 }
 
 export const Scoreboard: React.FC<ScoreboardProps> = ({ game, onAddRound, onUpdatePlayerName }) => {
+    const { t } = useLanguage();
     const [editingId, setEditingId] = useState<string | null>(null);
     const [editName, setEditName] = useState('');
 
@@ -104,7 +106,7 @@ export const Scoreboard: React.FC<ScoreboardProps> = ({ game, onAddRound, onUpda
                 <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <History size={18} className="text-slate-400" />
-                        <h3 className="font-semibold text-slate-700">Rounds</h3>
+                        <h3 className="font-semibold text-slate-700">{t.rounds_title}</h3>
                     </div>
                 </div>
 

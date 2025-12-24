@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { Download, Upload, Calendar, ChevronRight, Trash2 } from 'lucide-react';
 import type { Game } from '../types';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface HistoryViewProps {
     history: Game[];
@@ -11,6 +12,7 @@ interface HistoryViewProps {
 }
 
 export const HistoryView: React.FC<HistoryViewProps> = ({ history, onImport, onExport, onDeleteGame, onSelectGame }) => {
+    const { t } = useLanguage();
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -33,21 +35,21 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ history, onImport, onE
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-5">
             <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-slate-800">Game History</h2>
+                <h2 className="text-2xl font-bold text-slate-800">{t.history_title}</h2>
                 <div className="flex gap-2">
                     <button
                         onClick={onExport}
                         className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors flex items-center gap-2 text-sm font-medium"
-                        title="Export JSON"
+                        title={t.history_export_btn}
                     >
-                        <Download size={18} /> <span className="hidden sm:inline">Export</span>
+                        <Download size={18} /> <span className="hidden sm:inline">{t.history_export_btn}</span>
                     </button>
                     <button
                         onClick={() => fileInputRef.current?.click()}
                         className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors flex items-center gap-2 text-sm font-medium"
-                        title="Import JSON"
+                        title={t.history_import_btn}
                     >
-                        <Upload size={18} /> <span className="hidden sm:inline">Import</span>
+                        <Upload size={18} /> <span className="hidden sm:inline">{t.history_import_btn}</span>
                     </button>
                     <input
                         type="file"
@@ -62,7 +64,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ history, onImport, onE
             <div className="space-y-4">
                 {history.length === 0 ? (
                     <div className="text-center py-12 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                        <p className="text-slate-400">No played games yet.</p>
+                        <p className="text-slate-400">{t.history_empty}</p>
                     </div>
                 ) : (
                     history.map(game => (
@@ -96,7 +98,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ history, onImport, onE
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        if (confirm('Delete this game from history?')) {
+                                        if (confirm(t.confirm_delete)) {
                                             onDeleteGame(game.id);
                                         }
                                     }}

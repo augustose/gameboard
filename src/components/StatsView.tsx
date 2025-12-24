@@ -1,12 +1,14 @@
 import React from 'react';
 import type { Game } from '../types';
 import { BarChart, Trophy } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface StatsViewProps {
     history: Game[];
 }
 
 export const StatsView: React.FC<StatsViewProps> = ({ history }) => {
+    const { t } = useLanguage();
     const totalGames = history.length;
 
     // Aggregate stats per player
@@ -64,25 +66,25 @@ export const StatsView: React.FC<StatsViewProps> = ({ history }) => {
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-5">
             <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-                <BarChart className="text-blue-600" /> Statistics
+                <BarChart className="text-blue-600" /> {t.stats_title}
             </h2>
 
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-                    <div className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Total Games</div>
+                    <div className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">{t.stats_total_games}</div>
                     <div className="text-3xl font-bold text-slate-800">{totalGames}</div>
                 </div>
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 col-span-2 sm:col-span-1">
-                    <div className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Top Player</div>
+                    <div className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">{t.stats_top_player}</div>
                     <div className="text-xl font-bold text-blue-600 truncate">{sortedPlayers[0]?.[0] || '-'}</div>
                     <div className="text-xs text-slate-400 mt-1">{sortedPlayers[0]?.[1].wins || 0} wins</div>
                 </div>
                 <div className="bg-blue-50 p-6 rounded-xl shadow-sm border border-blue-100 hidden lg:block">
-                    <div className="text-blue-500 text-xs font-bold uppercase tracking-wider mb-1">Rummy Games</div>
+                    <div className="text-blue-500 text-xs font-bold uppercase tracking-wider mb-1">{t.stats_rummy_games}</div>
                     <div className="text-3xl font-bold text-blue-800">{history.filter(g => g.type === 'rummy').length}</div>
                 </div>
                 <div className="bg-indigo-50 p-6 rounded-xl shadow-sm border border-indigo-100 hidden lg:block">
-                    <div className="text-indigo-500 text-xs font-bold uppercase tracking-wider mb-1">Continental Games</div>
+                    <div className="text-indigo-500 text-xs font-bold uppercase tracking-wider mb-1">{t.stats_continental_games}</div>
                     <div className="text-3xl font-bold text-indigo-800">{history.filter(g => g.type === 'continental').length}</div>
                 </div>
             </div>
@@ -90,7 +92,7 @@ export const StatsView: React.FC<StatsViewProps> = ({ history }) => {
             {/* Visual Chart */}
             <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden p-6">
                 <h3 className="font-semibold text-slate-700 mb-6 flex items-center gap-2">
-                    <Trophy size={16} className="text-yellow-500" /> Win Distribution
+                    <Trophy size={16} className="text-yellow-500" /> {t.stats_win_distribution}
                 </h3>
 
                 <div className="space-y-4">
@@ -125,7 +127,7 @@ export const StatsView: React.FC<StatsViewProps> = ({ history }) => {
                         </div>
                     ))}
                     {sortedPlayers.length === 0 && (
-                        <p className="text-center text-slate-400 py-8">Play some games to see formatted charts!</p>
+                        <p className="text-center text-slate-400 py-8">{t.stats_play_more}</p>
                     )}
                 </div>
 
@@ -144,12 +146,12 @@ export const StatsView: React.FC<StatsViewProps> = ({ history }) => {
                 <table className="w-full text-sm">
                     <thead>
                         <tr className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
-                            <th className="px-4 py-3 text-left">Player</th>
-                            <th className="px-4 py-3 text-center">Games</th>
-                            <th className="px-4 py-3 text-center font-bold text-slate-700">Total Wins</th>
-                            <th className="px-4 py-3 text-center text-blue-600">Rum Wins</th>
-                            <th className="px-4 py-3 text-center text-indigo-600">Con Wins</th>
-                            <th className="px-4 py-3 text-right">Win Rate</th>
+                            <th className="px-4 py-3 text-left">{t.th_player}</th>
+                            <th className="px-4 py-3 text-center">{t.th_games}</th>
+                            <th className="px-4 py-3 text-center font-bold text-slate-700">{t.th_wins}</th>
+                            <th className="px-4 py-3 text-center text-blue-600">{t.th_rum_wins}</th>
+                            <th className="px-4 py-3 text-center text-indigo-600">{t.th_con_wins}</th>
+                            <th className="px-4 py-3 text-right">{t.th_win_rate}</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">

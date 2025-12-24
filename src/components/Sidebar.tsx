@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { Home, Clock, Download, Upload, BarChart2, Info } from 'lucide-react';
 import type { GameType } from '../types';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface SidebarProps {
     onNavigate: (view: 'home' | 'history' | 'stats' | 'about') => void;
@@ -10,6 +11,7 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ onNavigate, onStartGame, onImport, onExport }) => {
+    const { t, setLanguage, language } = useLanguage();
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -49,7 +51,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavigate, onStartGame, onImp
                             onClick={() => onNavigate('home')}
                             className="w-full flex items-center gap-3 px-3 py-2 text-slate-700 hover:bg-slate-50 rounded-lg transition-colors font-medium text-left"
                         >
-                            <Home size={18} /> New Game / Active
+                            <Home size={18} /> {t.menu_new_game}
                         </button>
                         {/* Submenu for New Game types (just shortcuts) */}
                         <div className="pl-9 space-y-1">
@@ -72,36 +74,36 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavigate, onStartGame, onImp
                         onClick={() => onNavigate('history')}
                         className="w-full flex items-center gap-3 px-3 py-2 text-slate-700 hover:bg-slate-50 rounded-lg transition-colors font-medium text-left"
                     >
-                        <Clock size={18} /> History
+                        <Clock size={18} /> {t.menu_history}
                     </button>
                     <button
                         onClick={() => onNavigate('stats')}
                         className="w-full flex items-center gap-3 px-3 py-2 text-slate-700 hover:bg-slate-50 rounded-lg transition-colors font-medium text-left"
                     >
-                        <BarChart2 size={18} /> Stats
+                        <BarChart2 size={18} /> {t.menu_stats}
                     </button>
                     <button
                         onClick={() => onNavigate('about')}
                         className="w-full flex items-center gap-3 px-3 py-2 text-slate-700 hover:bg-slate-50 rounded-lg transition-colors font-medium text-left"
                     >
-                        <Info size={18} /> About
+                        <Info size={18} /> {t.menu_about}
                     </button>
                 </div>
 
                 {/* Data Section */}
                 <div className="space-y-2">
-                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider px-2">Data</h3>
+                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider px-2">{t.menu_data}</h3>
                     <button
                         onClick={onExport}
                         className="w-full flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors font-medium text-left text-sm"
                     >
-                        <Download size={18} /> Export Data
+                        <Download size={18} /> {t.menu_export}
                     </button>
                     <button
                         onClick={() => fileInputRef.current?.click()}
                         className="w-full flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors font-medium text-left text-sm"
                     >
-                        <Upload size={18} /> Import JSON
+                        <Upload size={18} /> {t.menu_import}
                     </button>
                     <input
                         type="file"
@@ -113,7 +115,23 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavigate, onStartGame, onImp
                 </div>
             </div>
 
-            <div className="p-4 border-t border-slate-100 text-center">
+            <div className="p-4 border-t border-slate-100 flex flex-col items-center gap-3">
+                <div className="flex gap-4">
+                    <button
+                        onClick={() => setLanguage('en')}
+                        className={`text-2xl hover:scale-110 transition-transform ${language === 'en' ? 'opacity-100 grayscale-0' : 'opacity-40 grayscale'}`}
+                        title="English"
+                    >
+                        🇺🇸
+                    </button>
+                    <button
+                        onClick={() => setLanguage('es')}
+                        className={`text-2xl hover:scale-110 transition-transform ${language === 'es' ? 'opacity-100 grayscale-0' : 'opacity-40 grayscale'}`}
+                        title="Español"
+                    >
+                        🇪🇸
+                    </button>
+                </div>
                 <p className="text-xs text-slate-400">El Turix v1.4.0</p>
             </div>
         </div>

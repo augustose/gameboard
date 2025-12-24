@@ -1,7 +1,9 @@
 import React from 'react';
 import { Info } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export const AboutView: React.FC = () => {
+    const { t } = useLanguage();
     return (
         <div className="max-w-2xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-5">
             <div className="text-center space-y-4">
@@ -12,33 +14,33 @@ export const AboutView: React.FC = () => {
 
             <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 prose prose-slate max-w-none">
                 <h3 className="flex items-center gap-2 text-lg font-bold text-slate-800">
-                    <Info className="text-blue-500" /> About the App
+                    <Info className="text-blue-500" /> {t.about_title}
                 </h3>
                 <p className="text-slate-600 mt-2">
-                    This application was created by <strong>Augusto Sosa</strong> with passion and dedication. Designed to turn chaotic game nights into organized fun, "El Turix Scoreboard" offers a modern way to keep score for Classic Rummy and Continental games.
+                    {t.about_intro}
                 </p>
 
-                <h4 className="font-bold text-slate-700 mt-6 mb-2">Features</h4>
+                <h4 className="font-bold text-slate-700 mt-6 mb-2">{t.about_features}</h4>
                 <ul className="list-disc pl-5 space-y-1 text-slate-600">
-                    <li>Support for Standard Rummy and Continental variants.</li>
-                    <li>Automatic score calculation and leader highlighting.</li>
-                    <li>Persistent history of your past games.</li>
-                    <li>Detailed statistics to settle who is truly the best.</li>
-                    <li>Works offline and on mobile.</li>
+                    <li>{t.about_feature_1}</li>
+                    <li>{t.about_feature_2}</li>
+                    <li>{t.about_feature_3}</li>
+                    <li>{t.about_feature_4}</li>
+                    <li>{t.about_feature_5}</li>
                 </ul>
 
-                <h4 className="font-bold text-slate-700 mt-6 mb-2">Meaning of "Turix"</h4>
+                <h4 className="font-bold text-slate-700 mt-6 mb-2">{t.about_meaning_title}</h4>
                 <p className="text-slate-600">
-                    "Turix" is the Mayan word for Dragonfly. In many cultures, dragonflies symbolize change, transformation, and adaptability—skills every good card player needs!
+                    {t.about_meaning_text}
                 </p>
-                <h4 className="font-bold text-slate-700 mt-6 mb-2">Credits</h4>
+                <h4 className="font-bold text-slate-700 mt-6 mb-2">{t.about_credits}</h4>
                 <p className="text-slate-600">
-                    <strong>Developer:</strong> Augusto Sosa<br />
-                    <strong>Design:</strong> Turix Classic Style
+                    <strong>{t.about_dev}:</strong> Augusto Sosa<br />
+                    <strong>{t.about_design}:</strong> Turix Classic Style
                 </p>
-                <h4 className="font-bold text-slate-700 mt-6 mb-2">Open Source</h4>
+                <h4 className="font-bold text-slate-700 mt-6 mb-2">{t.about_opensource}</h4>
                 <p className="text-slate-600">
-                    This project is open source. You can view the code, report issues, or contribute on GitHub:
+                    {t.about_opensource_text}
                 </p>
                 <a
                     href="https://github.com/augustose/gameboard"
@@ -54,7 +56,7 @@ export const AboutView: React.FC = () => {
             </div>
 
             <div className="text-center text-slate-400 text-sm">
-                Made with ❤️ for Game Night
+                {t.about_footer}
             </div>
         </div>
     );

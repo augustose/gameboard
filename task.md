@@ -1,0 +1,22 @@
+# Task List: Multilingual Support (i18n)
+
+- [x] Explore codebase for text strings
+    - [x] `Sidebar.tsx` (Menu items)
+    - [x] `GameSetup.tsx` (Form labels, buttons)
+    - [x] `Scoreboard.tsx` (Game status, actions)
+    - [x] `HistoryView.tsx` (Table headers, empty states)
+    - [x] `StatsView.tsx` (Stat labels)
+    - [x] `AboutView.tsx` (Description texts)
+    - [x] `App.tsx` (Headers, alerts)
+- [ ] Design i18n Solution
+    - [ ] Create `translations.ts` with EN/ES dictionaries
+    - [ ] Create `useLanguage` hook/context for state management along with browser detection
+- [ ] Implement Translation Logic
+    - [ ] Replace hardcoded strings with dictionary lookups in all components
+- [ ] Add Language Selector
+    - [ ] Add flag icons (or simple text/emoji) to `Sidebar`
+    - [ ] styling for "discrete" look
+- [ ] Verify
+    - [ ] Test language switching
+    - [ ] Test browser language detection
+    - [ ] Check persistence (optional but good UX)
