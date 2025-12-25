@@ -8,13 +8,13 @@ import { HistoryView } from './components/HistoryView';
 import { StatsView } from './components/StatsView';
 import { AboutView } from './components/AboutView';
 import { Sidebar } from './components/Sidebar';
-import { useLocalStorage } from './hooks/useLocalStorage';
+import { useDataStore } from './hooks/useDataStore';
 import type { Game, Player, Score, Round, GameType } from './types';
 import { Menu } from 'lucide-react';
 import { useLanguage } from './contexts/LanguageContext';
 
 const Dashboard = () => {
-  const { data, saveGame, deleteGame, importData, exportData } = useLocalStorage();
+  const { data, saveGame, deleteGame, importData, exportData } = useDataStore();
   const { t } = useLanguage();
 
   const [view, setView] = useState<'home' | 'history' | 'stats' | 'about'>('home');

@@ -1,5 +1,18 @@
 {
   "projects": {
     "default": "el-turix-score-2025"
-  }
+  },
+  "targets": {
+    "el-turix-score-2025": {
+      "hosting": {
+        "beta": [
+          "el-turix-score-2025--beta-5zj6p63q.web.app"
+        ],
+        "main": [
+          "iturix"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }

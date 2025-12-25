@@ -1,7 +1,10 @@
 import React, { useRef } from 'react';
-import { Home, Clock, Download, Upload, BarChart2, Info } from 'lucide-react';
+import { Home, Clock, Download, Upload, BarChart2, Info, LogOut } from 'lucide-react';
 import type { GameType } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useAuth } from '../contexts/AuthContext';
+import { auth } from '../firebase';
+import { signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth';
 
 interface SidebarProps {
     onNavigate: (view: 'home' | 'history' | 'stats' | 'about') => void;
@@ -12,7 +15,23 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ onNavigate, onStartGame, onImport, onExport }) => {
     const { t, setLanguage, language } = useLanguage();
+    const { currentUser } = useAuth();
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleLogin = async () => {
+        const provider = new GoogleAuthProvider();
+        try {
+            await signInWithPopup(auth, provider);
+        } catch (error: any) {
+            console.error("Login failed", error);
+            // Show exact error code for debugging
+            alert(`Login Failed: ${error.message} (${error.code})`);
+        }
+    };
+
+    const handleLogout = () => {
+        signOut(auth);
+    };
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -115,7 +134,42 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavigate, onStartGame, onImp
                 </div>
             </div>
 
-            <div className="p-4 border-t border-slate-100 flex flex-col items-center gap-3">
+            <div className="p-4 border-t border-slate-100 flex flex-col items-center gap-4">
+                {/* Account Section */}
+                <div className="w-full">
+                    {currentUser ? (
+                        <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 flex flex-col gap-2">
+                            <div className="flex items-center gap-2">
+                                {currentUser.photoURL ? (
+                                    <img src={currentUser.photoURL} alt="User" className="w-8 h-8 rounded-full" />
+                                ) : (
+                                    <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
+                                        {currentUser.email?.[0].toUpperCase()}
+                                    </div>
+                                )}
+                                <div className="flex-1 min-w-0">
+                                    <div className="text-xs font-bold text-slate-700 truncate">{currentUser.displayName || 'User'}</div>
+                                    <div className="text-[10px] text-slate-400 truncate">{currentUser.email}</div>
+                                </div>
+                            </div>
+                            <button
+                                onClick={handleLogout}
+                                className="w-full flex items-center justify-center gap-2 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            >
+                                <LogOut size={14} /> Logout
+                            </button>
+                        </div>
+                    ) : (
+                        <button
+                            onClick={handleLogin}
+                            className="w-full flex items-center justify-center gap-2 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm font-medium text-sm"
+                        >
+                            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" className="w-4 h-4" alt="Google" />
+                            Sign in with Google
+                        </button>
+                    )}
+                </div>
+
                 <div className="flex gap-4">
                     <button
                         onClick={() => setLanguage('en')}
@@ -132,7 +186,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavigate, onStartGame, onImp
                         🇪🇸
                     </button>
                 </div>
-                <p className="text-xs text-slate-400">El Turix v1.4.0</p>
+                <p className="text-xs text-slate-400">El Turix v1.5.0</p>
             </div>
         </div>
     );

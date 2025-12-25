@@ -1,72 +1,93 @@
-# IMPL: Multilingual Support (English/Spanish)
+# IMPL: Optional Cloud Sync & Authentication
 
-I will implement a lightweight internationalization system to support both English (default) and Spanish languages, including browser language detection and a selector in the sidebar.
+This plan outlines the addition of optional Email/Password authentication and cloud synchronization using Firebase Firestore.
 
-## User Review Required
+## User Requirements Analysis
+- **Goal**: Allow users to save their last 200 games to the cloud.
+- **Constraint**: Must be **optional**. "Offline-first" behavior remains default.
+- **Tech**: Firebase Authentication (Email/Password) + Cloud Firestore.
 
-> [!NOTE]
-> The default language will be English. If the user's browser is set to Spanish/Castilian (es-ES, es-MX, etc.), it will automatically switch to Spanish on the first load.
-> Two flag icons (🇺🇸 / 🇪🇸 or similar) will be added to the bottom of the sidebar for manual switching.
+## Critical Analysis (Pros & Cons)
 
-## Proposed Changes
+| Feature | Pros | Cons |
+| :--- | :--- | :--- |
+| **Cloud Sync** | **Data Safety**: Games are backed up if device is lost.<br>**Multi-device**: Seamlessly switch between phone and tablet.<br>**Sharing**: Easier foundation for future features (e.g. sharing live games). | **Complexity**: Handling offline/online conflicts is difficult.<br>**Cost/Limits**: Firestore Storage/Bandwidth costs if user base grows significantly (though Free Tier is generous).<br>**Privacy**: User data leaves their device (requires Security Rules). |
+| **Optional Auth**| **UX**: Low barrier to entry (no forced signup). | **Maintenance**: Code must handle two accumulation states (synced vs local-only). |
 
-### Core Logic
+> [!IMPORTANT]
+> **Decision**: We will implement a "Last Write Wins" sync strategy. This is simple and effective for single-user scenarios but may overwrite data if the user plays offline on two devices simultaneously and then syncs both. Given the use case (scorekeeping), this risk is acceptable.
 
-#### [NEW] [src/contexts/LanguageContext.tsx](file:///Users/augustose/DEV/gameboard/src/contexts/LanguageContext.tsx)
-- Create a context to manage `language` state ('en' | 'es').
-- Implement `detectLanguage()` to check `navigator.language`.
-- Provide a `useLanguage` hook to access the dictionary and valid languages.
+## Proposed Architecture
 
-#### [NEW] [src/translations.ts](file:///Users/augustose/DEV/gameboard/src/translations.ts)
-- Export a dictionary object structure:
-  ```ts
-  export const translations = {
-    en: { ... },
-    es: { ... }
-  }
-  ```
-- Keys will cover:
-  - Menu Items (Home, History, Stats, About)
-  - Game Actions (Start, Cancel, Finish)
-  - Setup Labels (New Game, Add Player)
-  - Stats Headers (Total Games, Top Player)
-  - Dialogue/Alert messages
+### 1. Database Schema (Firestore)
+- **Collection**: `users`
+- **Document ID**: `{firebase_auth_uid}`
+- **Fields**:
+  - `history`: `Game[]` (Limit to last 200 items in code)
+  - `preferences`: `{ theme: string, ... }`
+  - `lastUpdated`: `Timestamp`
 
-### Component Updates (Apply Translations)
+### 2. Authentication UI
+- **SSO Only**: We will use `GoogleAuthProvider` for a one-click login experience.
+- **Sidebar Update**:
+  - Add "Account" section at the bottom.
+  - If logged out: Show "Sign in with Google" button (with Google G logo).
+  - If logged in: Show User Avatar/Name and "Logout" button.
 
-#### [MODIFY] [src/main.tsx](file:///Users/augustose/DEV/gameboard/src/main.tsx)
-- Wrap the app in `<LanguageProvider>`.
+### 3. Logic Updates
+
+#### [MODIFY] [src/hooks/useLocalStorage.ts](file:///Users/augustose/DEV/gameboard/src/hooks/useLocalStorage.ts) -> `useDataStore.ts`
+- Rename to `useDataStore`.
+- **syncData(user)** function:
+  - Called on login.
+  - Merges local `Game[]` with Firestore `Game[]`.
+- **saveGame(game)** function:
+  - Updates local + Firestore (if logged in).
 
 #### [MODIFY] [src/components/Sidebar.tsx](file:///Users/augustose/DEV/gameboard/src/components/Sidebar.tsx)
-- Use `useLanguage` hook.
-- Replace menu text with keys.
-- **Add Flag Icons** at the bottom (footer area or separate section) to toggle language:
-  - 🇺🇸 (EN)
-  - 🇪🇸 (ES)
+- Integrate `signInWithPopup(auth, googleProvider)` directly.
+- Display user profile info from `currentUser`.
 
 #### [MODIFY] [src/App.tsx](file:///Users/augustose/DEV/gameboard/src/App.tsx)
-- Replace headers and button text (Cancel, Finish Game).
-- Replace `confirm` messages with translated versions.
+- No new routes needed! All auth happens via popup in the sidebar.
 
-#### [MODIFY] [src/components/GameSetup.tsx](file:///Users/augustose/DEV/gameboard/src/components/GameSetup.tsx)
-- Translate form labels and buttons.
+### 4. Security Rules (firestore.rules)
+```
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
+```
 
-#### [MODIFY] [src/components/Scoreboard.tsx](file:///Users/augustose/DEV/gameboard/src/components/Scoreboard.tsx)
-- Translate "Rounds" header.
+### 5. Safety & Verification Strategy (The "Beta" Channel)
 
-#### [MODIFY] [src/components/HistoryView.tsx](file:///Users/augustose/DEV/gameboard/src/components/HistoryView.tsx)
-- Translate "Game History", empty state, and table headers.
+To avoid risking the production site (`el-turix-score-2025.web.app`), we will use **Firebase Hosting Preview Channels**.
+This creates a temporary, hidden "Beta" URL (e.g., `...web.app`) where we can test the new Auth features fully.
 
-#### [MODIFY] [src/components/StatsView.tsx](file:///Users/augustose/DEV/gameboard/src/components/StatsView.tsx)
-- Translate stat labels (Wins, Top Player, Win Rate).
+**Workflow:**
+1.  **Develop**: Implement changes locally.
+2.  **Deploy Beta**: Run `firebase hosting:channel:deploy beta`.
+    *   This generates a temporary URL.
+    *   Production remains untouched.
+3.  **Verify**: You open the Beta URL on your phone/desktop.
+    *   Test Login with Google.
+    *   Play a game.
+    *   Verify data shows up in Firestore Console.
+4.  **Go Live**: Only after you confirm it works, we run `firebase deploy`.
 
-#### [MODIFY] [src/components/AboutView.tsx](file:///Users/augustose/DEV/gameboard/src/components/AboutView.tsx)
-- Translate description, bio, and credits.
+**Why this is better than Blue/Green:**
+- built-in to Firebase (zero configuration).
+- Instant rollback (just re-deploy previous version if needed).
+- Zero cost/setup time compared to setting up separate "Staging" environments.
 
-## Verification Plan
+## Step-by-Step Plan
 
-### Manual Verification
-1.  **Default Load**: Open in a browser with English settings -> Verify English text.
-2.  **Switch to ES**: Click the Spanish flag -> Verify all labels change to Spanish instantly.
-3.  **Switch to EN**: Click the US flag -> Verify text reverts.
-4.  **Browser Detection**: Change browser language preference to Spanish, reload -> Verify app starts in Spanish.
+1.  **Firebase Setup**: User enables **Google Auth** and **Cloud Firestore** in Firebase Console.
+2.  **Coding**: Implement `useDataStore`, Sidebar changes, and Auth logic.
+3.  **Beta Release**: Deploy to a preview channel.
+4.  **User Acceptance**: You test the beta link.
+5.  **Production Release**: Merge and deploy to main site.
