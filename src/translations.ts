@@ -78,7 +78,12 @@ export const translations = {
         about_design: "Design",
         about_opensource: "Open Source",
         about_opensource_text: "This project is open source. You can view the code, report issues, or contribute on GitHub:",
-        about_footer: "Made with ❤️ for Game Night"
+        about_footer: "Made with ❤️ for Game Night",
+        about_tribute_title: "Tribute",
+        about_tribute_text: "El Turix pays tribute to the establishment created by my dear father-in-law, Don Rafael (R.I.P.). A great man, husband, father, and friend, who knew how to live and was a beautiful contribution to society, improving the lives of those who knew him.",
+        about_thanks_title: "Special Thanks",
+        about_thanks_list: "Maruca P, Alejandra P, Maria Jose C., Tia Carmen, Tio Manuel P., Kiki P., Las Tias Psyco, Las Jugetonas, Alba, Augusto J, Maria C, Chiquilina. (If I forgot anyone, let me know! :-))",
+        landing_purpose: "Keep score of your Rummy and Continental games easily and elegantly."
     },
     es: {
         // Menu
@@ -143,7 +148,7 @@ export const translations = {
 
         // About
         about_title: "Acerca de la App",
-        about_intro: "Esta aplicación fue creada por Augusto Sosa con pasión y dedicación. Diseñada para convertir las noches de juego caóticas en diversión organizada, \"El Turix Scoreboard\" ofrece una forma moderna de llevar el puntaje para juegos de Rummy Clásico y Continental.",
+        about_intro: "Esta aplicación fue creada por Augusto Sosa con pasión y dedicación. Diseñada para ordenar las noches de juego, \"El Turix Scoreboard\" facilita llevar el puntaje de Rummy y Continental.",
         about_features: "Características",
         about_feature_1: "Soporte para variantes Rummy Estándar y Continental.",
         about_feature_2: "Cálculo automático de puntajes y resaltado del líder.",
@@ -157,6 +162,11 @@ export const translations = {
         about_design: "Diseño",
         about_opensource: "Código Abierto",
         about_opensource_text: "Este proyecto es de código abierto. Puedes ver el código, reportar problemas o contribuir en GitHub:",
-        about_footer: "Hecho con ❤️ para Noches de Juego"
+        about_footer: "Hecho con ❤️ para Noches de Juego",
+        about_tribute_title: "Homenaje",
+        about_tribute_text: "El Turix es el establecimiento creado por mi querido suegro Q.E.P.D. Don Rafael. Un gran hombre, gran esposo, gran padre y gran amigo, que supo vivir y fue una bella contribución a la sociedad, mejorando la vida de quienes lo conocimos.",
+        about_thanks_title: "Agradecimientos Especiales",
+        about_thanks_list: "Maruca P, Alejandra P, Maria Jose C., Tia Carmen, Tio Manuel P., Kiki P., Las Tias Psyco, Las Jugetonas, Alba, Augusto J, Maria C, Chiquilina. (Si me olvido de alguien que me avise! :-))",
+        landing_purpose: "Lleva el puntaje de tus partidas de Rummy y Continental de forma fácil y elegante."
     }
 };

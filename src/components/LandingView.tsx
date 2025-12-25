@@ -27,8 +27,8 @@ export const LandingView: React.FC<LandingViewProps> = ({ onStart, onAbout }) =>
                     El Turix
                     <span className="text-blue-600">.</span>
                 </h1>
-                <p className="text-lg text-slate-500 font-medium">
-                    {t.about_intro?.split('.')[0] || "Scoreboard"}
+                <p className="text-lg text-slate-500 font-medium px-4">
+                    {t.landing_purpose || t.about_intro?.split('.')[0]}
                 </p>
             </div>
 
