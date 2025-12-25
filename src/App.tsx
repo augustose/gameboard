@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { GameSetup } from './components/GameSetup';
@@ -8,19 +8,30 @@ import { HistoryView } from './components/HistoryView';
 import { StatsView } from './components/StatsView';
 import { AboutView } from './components/AboutView';
 import { Sidebar } from './components/Sidebar';
+import { BottomNav } from './components/BottomNav';
 import { useDataStore } from './hooks/useDataStore';
+import { useWakeLock } from './hooks/useWakeLock';
 import type { Game, Player, Score, Round, GameType } from './types';
-import { Menu } from 'lucide-react';
 import { useLanguage } from './contexts/LanguageContext';
 
 const Dashboard = () => {
   const { data, saveGame, deleteGame, importData, exportData } = useDataStore();
   const { t } = useLanguage();
+  const { requestLock, releaseLock } = useWakeLock();
 
   const [view, setView] = useState<'home' | 'history' | 'stats' | 'about'>('home');
   const [selectedGameType, setSelectedGameType] = useState<GameType>('rummy');
   const [activeGame, setActiveGame] = useState<Game | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // Manage Wake Lock based on game status
+  useEffect(() => {
+    if (activeGame && activeGame.status === 'active') {
+      requestLock();
+    } else {
+      releaseLock();
+    }
+  }, [activeGame?.status, requestLock, releaseLock]);
 
   const startGame = (players: Player[], type: GameType) => {
     const newGame: Game = {
@@ -147,6 +158,7 @@ const Dashboard = () => {
         <header className="bg-white border-b border-slate-200 h-16 flex-shrink-0 z-30">
           <div className="max-w-5xl mx-auto px-4 h-full flex items-center justify-between">
             <div className="flex items-center gap-3">
+              {/* BRANDING */}
               <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent cursor-pointer lg:hidden" onClick={() => setView('home')}>
                 El Turix Scoreboard
               </h1>
@@ -156,6 +168,7 @@ const Dashboard = () => {
             </div>
 
             <div className="flex items-center gap-2">
+              {/* ACTION BUTTONS (Cancel / Finish) */}
               {activeGame && activeGame.status === 'active' && view === 'home' && (
                 <>
                   <button
@@ -174,24 +187,27 @@ const Dashboard = () => {
                   </button>
                 </>
               )}
-              <button
-                onClick={() => setIsMenuOpen(true)}
-                className="p-2 -mr-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors lg:hidden"
-              >
-                <Menu size={24} />
-              </button>
+              {/* HIDE HAMBURGER MENU ON MOBILE (Now handled by Bottom Nav) */}
             </div>
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-4 lg:p-8 pb-24 scroll-smooth">
+        {/* Content with extra bottom padding for mobile nav */}
+        <main className="flex-1 overflow-y-auto p-4 lg:p-8 pb-24 lg:pb-8 scroll-smooth">
           <div className="max-w-5xl mx-auto">
             {renderContent()}
           </div>
         </main>
+
+        {/* Bottom Navigation for Mobile */}
+        <BottomNav
+          currentView={view}
+          onNavigate={navigate}
+          onMenuOpen={() => setIsMenuOpen(true)}
+        />
       </div>
 
-      {/* Overlay for mobile */}
+      {/* Overlay for mobile sidebar (still used for "More" menu) */}
       {isMenuOpen && (
         <div className="fixed inset-0 bg-black/20 z-40 lg:hidden" onClick={() => setIsMenuOpen(false)} />
       )}
