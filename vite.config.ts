@@ -35,5 +35,10 @@ export default defineConfig({
   server: {
     port: 5173,
     strictPort: true,
+    host: true, // Listen on all addresses
   },
+  preview: {
+    port: 4173,
+    host: true, // Listen on all addresses
+  }
 })

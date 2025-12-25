@@ -13,6 +13,7 @@ import { LandingView } from './components/LandingView';
 import { useDataStore } from './hooks/useDataStore';
 import { useWakeLock } from './hooks/useWakeLock';
 import type { Game, Player, Score, Round, GameType } from './types';
+import { generateId } from './utils/uuid';
 import { useLanguage } from './contexts/LanguageContext';
 
 const Dashboard = () => {
@@ -36,7 +37,7 @@ const Dashboard = () => {
 
   const startGame = (players: Player[], type: GameType) => {
     const newGame: Game = {
-      id: crypto.randomUUID(),
+      id: generateId(),
       createdAt: Date.now(),
       status: 'active',
       type,
@@ -82,7 +83,7 @@ const Dashboard = () => {
   const handleAddRound = (scores: Score[]) => {
     if (!activeGame) return;
     const newRound: Round = {
-      id: crypto.randomUUID(),
+      id: generateId(),
       roundNumber: activeGame.rounds.length + 1,
       scores,
       timestamp: Date.now()

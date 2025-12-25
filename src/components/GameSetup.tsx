@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Plus, X, Users, PlayCircle, Dna } from 'lucide-react';
 import type { Player, GameType } from '../types';
+import { generateId } from '../utils/uuid';
 
 interface GameSetupProps {
     onStartGame: (players: Player[], type: GameType) => void;
@@ -24,7 +25,7 @@ export const GameSetup: React.FC<GameSetupProps> = ({ onStartGame, initialPlayer
     }, [initialGameType]);
 
     const addPlayer = () => {
-        setPlayers([...players, { id: crypto.randomUUID(), name: '' }]);
+        setPlayers([...players, { id: generateId(), name: '' }]);
     };
 
     const removePlayer = (id: string) => {
@@ -46,6 +47,7 @@ export const GameSetup: React.FC<GameSetupProps> = ({ onStartGame, initialPlayer
     };
 
     const isValid = players.filter(p => p.name.trim() !== '').length >= 2;
+    // console.log("Form isValid:", isValid);
 
     return (
         <div className="max-w-md mx-auto p-6 bg-white rounded-xl shadow-sm border border-slate-100 animate-in fade-in zoom-in duration-300">

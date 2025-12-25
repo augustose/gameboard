@@ -32,10 +32,10 @@ export const LandingView: React.FC<LandingViewProps> = ({ onStart, onAbout }) =>
                 </p>
             </div>
 
-            <div className="flex flex-col w-full max-w-xs gap-3 pt-6">
+            <div className="flex flex-col w-full max-w-xs gap-3 pt-6 relative z-10">
                 <button
                     onClick={onStart}
-                    className="w-full bg-slate-900 text-white font-bold py-4 px-8 rounded-2xl shadow-lg hover:bg-slate-800 hover:scale-[1.02] hover:shadow-xl transition-all flex items-center justify-center gap-2 group"
+                    className="w-full bg-slate-900 text-white font-bold py-4 px-8 rounded-2xl shadow-lg hover:bg-slate-800 hover:scale-[1.02] hover:shadow-xl transition-all flex items-center justify-center gap-2 group clickable"
                 >
                     {t.menu_new_game || "Start Game"}
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
