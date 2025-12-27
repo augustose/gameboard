@@ -16,12 +16,21 @@ Follow this strict protocol for all feature releases and significant changes.
 -   **Requirement**: User must verify the app running on `localhost:4173` (or network IP).
 -   **Gateway**: **STOP**. detailed user approval required.
 
-## 3. Commit (Version Control)
--   **Context**: Code is verified locally.
+## 3. Versioning (SemVer)
+-   **Context**: Before committing.
+-   **Rule**:
+    -   **Bug Fix**: Increment **Patch** (e.g., 1.0.0 -> 1.0.1)
+    -   **Feature**: Increment **Minor** (e.g., 1.0.0 -> 1.1.0)
+    -   **Huge Change**: Increment **Major** (e.g., 1.0.0 -> 2.0.0)
+-   **Action**: Update `version` in `package.json`.
+-   **Command**: `npm version patch` (or `minor`/`major`)
+
+## 4. Commit (Version Control)
+-   **Context**: Code is verified locally and version updated.
 -   **Action**: Commit changes to git.
 -   **Command**: `git add . && git commit -m "feat/fix: ..."`
 
-## 4. Beta Deployment (Staging)
+## 5. Beta Deployment (Staging)
 -   **Context**: Verified locally, ready for device testing.
 -   **Command**: `firebase hosting:channel:deploy beta`
 -   **Requirement**: User must test the generated preview URL on their actual device (phone).
