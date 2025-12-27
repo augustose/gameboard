@@ -110,17 +110,17 @@ export const Scoreboard: React.FC<ScoreboardProps> = ({ game, onAddRound, onUpda
                     </div>
                 </div>
 
-                <div className="overflow-x-auto">
+                <div className="overflow-auto max-h-[70vh] shadow-inner">
                     <table className="w-full text-sm">
                         <thead>
-                            <tr className="bg-slate-50/50">
-                                <th className="px-4 py-3 text-left font-medium text-slate-500 w-12 text-center">#</th>
+                            <tr className="bg-slate-50/50 sticky top-0 z-10 shadow-sm">
+                                <th className="px-4 py-3 text-left font-medium text-slate-500 w-12 text-center bg-slate-50">#</th>
                                 {game.players.map(p => (
-                                    <th key={p.id} className="px-4 py-3 text-right font-medium text-slate-500 min-w-[80px]">
+                                    <th key={p.id} className="px-4 py-3 text-right font-medium text-slate-500 min-w-[80px] bg-slate-50">
                                         {p.name}
                                     </th>
                                 ))}
-                                <th className="w-10"></th>
+                                <th className="w-10 bg-slate-50"></th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">

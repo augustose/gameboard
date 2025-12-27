@@ -205,7 +205,7 @@ const Dashboard = () => {
         )}
 
         {/* Content with extra bottom padding for mobile nav */}
-        <main className={`flex-1 overflow-y-auto p-4 lg:p-8 scroll-smooth ${view !== 'landing' ? 'pb-24 lg:pb-8' : ''}`}>
+        <main className={`flex-1 overflow-y-auto p-4 lg:p-8 scroll-smooth ${view !== 'landing' ? 'pb-40 lg:pb-8' : ''}`}>
           <div className="max-w-5xl mx-auto h-full">
             {renderContent()}
           </div>

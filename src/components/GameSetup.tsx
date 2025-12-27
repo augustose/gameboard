@@ -134,6 +134,8 @@ export const GameSetup: React.FC<GameSetupProps> = ({ onStartGame, initialPlayer
                 >
                     Start Game
                 </button>
+                {/* Spacer to allow scrolling past button on mobile */}
+                <div className="h-24 sm:h-0"></div>
             </form>
         </div>
     );

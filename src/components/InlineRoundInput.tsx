@@ -35,10 +35,14 @@ export const InlineRoundInput: React.FC<InlineRoundInputProps> = ({ players, rou
     const handleSubmit = () => {
         // Ensure all fields have a value (using 0 as default if empty is fine, or validation)
         // Let's assume empty = 0
-        const formattedScores: Score[] = players.map(p => ({
-            playerId: p.id,
-            points: parseInt(scores[p.id] || '0', 10)
-        }));
+        const formattedScores: Score[] = players.map(p => {
+            const val = scores[p.id];
+            const parsed = parseInt(val || '0', 10);
+            return {
+                playerId: p.id,
+                points: isNaN(parsed) ? 0 : parsed
+            };
+        });
         onSave(formattedScores);
         setScores({}); // Reset for next round if this component persists, though usually it will unmount/remount
     };
@@ -46,7 +50,7 @@ export const InlineRoundInput: React.FC<InlineRoundInputProps> = ({ players, rou
     const isFilled = players.some(p => scores[p.id] && scores[p.id] !== '');
 
     return (
-        <tr className="bg-blue-50/50 border-t-2 border-blue-100 transition-colors">
+        <tr className="bg-blue-50 border-t-2 border-blue-100 transition-colors sticky bottom-0 z-20 shadow-[-2px_-2px_10px_rgba(0,0,0,0.05)]">
             <td className="px-4 py-3 font-bold text-blue-600 align-middle">
                 {roundNumber}
             </td>
@@ -54,9 +58,9 @@ export const InlineRoundInput: React.FC<InlineRoundInputProps> = ({ players, rou
                 <td key={p.id} className="px-2 py-2">
                     <input
                         id={`inline-score-${p.id}`}
-                        type="tel"
-                        inputMode="numeric"
-                        pattern="[0-9-]*"
+                        type="text"
+                        inputMode="text"
+                        pattern="^-?[0-9]*$"
                         placeholder="0"
                         value={scores[p.id] || ''}
                         onChange={(e) => handleScoreChange(p.id, e.target.value)}
