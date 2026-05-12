@@ -22,6 +22,7 @@ export type GameType = 'rummy' | 'continental';
 export interface Game {
     id: string;
     createdAt: number;
+    updatedAt?: number;
     endedAt?: number;
     status: 'active' | 'completed';
     type: GameType;
@@ -32,6 +33,7 @@ export interface Game {
 
 export interface AppData {
     history: Game[];
+    activeGame?: Game | null;
     preferences: {
         theme: 'light' | 'dark';
     };

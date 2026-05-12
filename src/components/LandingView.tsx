@@ -51,7 +51,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ onStart, onAbout }) =>
             </div>
 
             <div className="absolute bottom-4 text-xs text-slate-300 font-medium uppercase tracking-widest">
-                v1.5.0 • Made with ❤️
+                v1.8.0 • Made with ❤️
             </div>
         </div>
     );
