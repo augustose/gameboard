@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { GameSetup } from './components/GameSetup';
@@ -20,6 +20,18 @@ const Dashboard = () => {
   const { data, saveGame, deleteGame, importData, exportData, setActiveGame } = useDataStore();
   const { t } = useLanguage();
   const { requestLock, releaseLock } = useWakeLock();
+
+  const historicalPlayers = useMemo(() => {
+    const names = new Set<string>();
+    data.history.forEach(game => {
+      game.players.forEach(player => {
+        if (player.name.trim()) {
+          names.add(player.name.trim());
+        }
+      });
+    });
+    return Array.from(names).sort((a, b) => a.localeCompare(b));
+  }, [data.history]);
 
   const [view, setView] = useState<'landing' | 'home' | 'history' | 'stats' | 'about'>('landing');
   const [selectedGameType, setSelectedGameType] = useState<GameType>('rummy');
@@ -156,7 +168,13 @@ const Dashboard = () => {
     }
 
     if (!activeGame) {
-      return <GameSetup onStartGame={startGame} initialGameType={selectedGameType} />;
+      return (
+        <GameSetup
+          onStartGame={startGame}
+          initialGameType={selectedGameType}
+          historicalPlayers={historicalPlayers}
+        />
+      );
     }
 
     if (activeGame.status === 'completed') {
