@@ -186,7 +186,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavigate, onStartGame, onImp
                         🇪🇸
                     </button>
                 </div>
-                <p className="text-xs text-slate-400">El Turix v1.5.0</p>
+                <p className="text-xs text-slate-400">El Turix v1.8.0</p>
             </div>
         </div>
     );

@@ -17,13 +17,13 @@ import { generateId } from './utils/uuid';
 import { useLanguage } from './contexts/LanguageContext';
 
 const Dashboard = () => {
-  const { data, saveGame, deleteGame, importData, exportData } = useDataStore();
+  const { data, saveGame, deleteGame, importData, exportData, setActiveGame } = useDataStore();
   const { t } = useLanguage();
   const { requestLock, releaseLock } = useWakeLock();
 
   const [view, setView] = useState<'landing' | 'home' | 'history' | 'stats' | 'about'>('landing');
   const [selectedGameType, setSelectedGameType] = useState<GameType>('rummy');
-  const [activeGame, setActiveGame] = useState<Game | null>(null);
+  const activeGame = data.activeGame;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   // Manage Wake Lock based on game status
@@ -36,9 +36,11 @@ const Dashboard = () => {
   }, [activeGame?.status, requestLock, releaseLock]);
 
   const startGame = (players: Player[], type: GameType) => {
+    const now = Date.now();
     const newGame: Game = {
       id: generateId(),
-      createdAt: Date.now(),
+      createdAt: now,
+      updatedAt: now,
       status: 'active',
       type,
       players,
@@ -82,26 +84,33 @@ const Dashboard = () => {
 
   const handleAddRound = (scores: Score[]) => {
     if (!activeGame) return;
+    const now = Date.now();
     const newRound: Round = {
       id: generateId(),
       roundNumber: activeGame.rounds.length + 1,
       scores,
-      timestamp: Date.now()
+      timestamp: now
     };
-    setActiveGame({ ...activeGame, rounds: [...activeGame.rounds, newRound] });
+    setActiveGame({
+      ...activeGame,
+      rounds: [...activeGame.rounds, newRound],
+      updatedAt: now
+    });
   };
 
   const handleUpdatePlayerName = (playerId: string, newName: string) => {
     if (!activeGame) return;
     setActiveGame({
       ...activeGame,
-      players: activeGame.players.map(p => p.id === playerId ? { ...p, name: newName } : p)
+      players: activeGame.players.map(p => p.id === playerId ? { ...p, name: newName } : p),
+      updatedAt: Date.now()
     });
   };
 
   const finishGame = () => {
     if (!activeGame) return;
-    const completedGame: Game = { ...activeGame, status: 'completed', endedAt: Date.now() };
+    const now = Date.now();
+    const completedGame: Game = { ...activeGame, status: 'completed', endedAt: now, updatedAt: now };
     setActiveGame(completedGame);
     saveGame(completedGame);
   };

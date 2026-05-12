@@ -10,7 +10,7 @@ export function useDataStore() {
     const { currentUser } = useAuth();
     const [data, setData] = useState<AppData>(() => {
         const stored = localStorage.getItem(STORAGE_KEY);
-        return stored ? JSON.parse(stored) : { history: [], preferences: { theme: 'light' } };
+        return stored ? JSON.parse(stored) : { history: [], activeGame: null, preferences: { theme: 'light' } };
     });
 
     // 1. Persist to LocalStorage whenever data changes
@@ -28,35 +28,46 @@ export function useDataStore() {
                 const userDoc = await getDoc(userDocRef);
 
                 let mergedHistory: Game[] = [...data.history];
+                let mergedActiveGame: Game | null = data.activeGame || null;
 
                 if (userDoc.exists()) {
                     const cloudData = userDoc.data();
                     const cloudHistory = (cloudData.history || []) as Game[];
+                    const cloudActiveGame = cloudData.activeGame as Game | null;
 
-                    // Merge: Add games from cloud that don't exist locally
-                    // Note: This is a simple merge. Complex conflict resolution is skipped for simplicity.
+                    // Merge history: Add games from cloud that don't exist locally
                     const localIds = new Set(data.history.map(g => g.id));
                     const newFromCloud = cloudHistory.filter(g => !localIds.has(g.id));
 
                     if (newFromCloud.length > 0) {
                         mergedHistory = [...mergedHistory, ...newFromCloud];
-                        // Sort by createdAt descending
                         mergedHistory.sort((a, b) => b.createdAt - a.createdAt);
-
-                        // Update local state with merged data
-                        setData(prev => ({ ...prev, history: mergedHistory }));
                     }
+
+                    // Merge Active Game: Take the one with the latest updatedAt
+                    if (cloudActiveGame) {
+                        if (!mergedActiveGame || (cloudActiveGame.updatedAt || 0) > (mergedActiveGame.updatedAt || 0)) {
+                            mergedActiveGame = cloudActiveGame;
+                        }
+                    }
+
+                    // Update local state
+                    setData(prev => ({
+                        ...prev,
+                        history: mergedHistory,
+                        activeGame: mergedActiveGame
+                    }));
                 }
 
-                // Always push the merged latest state back to cloud to ensure consistency
-                // Limit to last 200 games
+                // Always push back the final state to cloud
                 const historyToSave = mergedHistory.slice(0, 200);
 
                 await setDoc(userDocRef, {
                     history: historyToSave,
+                    activeGame: mergedActiveGame,
                     preferences: data.preferences,
                     lastUpdated: serverTimestamp(),
-                    email: currentUser.email // Helpful for debugging, safe if rules allow
+                    email: currentUser.email
                 }, { merge: true });
 
             } catch (error) {
@@ -74,6 +85,7 @@ export function useDataStore() {
             const userDocRef = doc(db, 'users', currentUser.uid);
             await setDoc(userDocRef, {
                 history: newData.history.slice(0, 200),
+                activeGame: newData.activeGame || null,
                 preferences: newData.preferences,
                 lastUpdated: serverTimestamp()
             }, { merge: true });
@@ -136,5 +148,13 @@ export function useDataStore() {
         URL.revokeObjectURL(url);
     };
 
-    return { data, saveGame, deleteGame, importData, exportData };
+    const setActiveGame = useCallback((game: Game | null) => {
+        setData(prev => {
+            const newData = { ...prev, activeGame: game };
+            pushToCloud(newData);
+            return newData;
+        });
+    }, [pushToCloud]);
+
+    return { data, saveGame, deleteGame, importData, exportData, setActiveGame };
 }
