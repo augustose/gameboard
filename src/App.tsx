@@ -26,6 +26,13 @@ const Dashboard = () => {
   const activeGame = data.activeGame;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  // Auto-redirect to home if there is an active game and we are on landing
+  useEffect(() => {
+    if (view === 'landing' && activeGame && activeGame.status === 'active') {
+      setView('home');
+    }
+  }, [activeGame, view]);
+
   // Manage Wake Lock based on game status
   useEffect(() => {
     if (activeGame && activeGame.status === 'active') {
@@ -111,8 +118,8 @@ const Dashboard = () => {
     if (!activeGame) return;
     const now = Date.now();
     const completedGame: Game = { ...activeGame, status: 'completed', endedAt: now, updatedAt: now };
-    setActiveGame(completedGame);
     saveGame(completedGame);
+    setActiveGame(completedGame); // Set it as active so PodiumView can show it
   };
 
   const renderContent = () => {

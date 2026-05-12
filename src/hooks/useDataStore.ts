@@ -10,7 +10,15 @@ export function useDataStore() {
     const { currentUser } = useAuth();
     const [data, setData] = useState<AppData>(() => {
         const stored = localStorage.getItem(STORAGE_KEY);
-        return stored ? JSON.parse(stored) : { history: [], activeGame: null, preferences: { theme: 'light' } };
+        if (stored) {
+            const parsed = JSON.parse(stored);
+            return {
+                history: parsed.history || [],
+                activeGame: parsed.activeGame || null,
+                preferences: parsed.preferences || { theme: 'light' }
+            };
+        }
+        return { history: [], activeGame: null, preferences: { theme: 'light' } };
     });
 
     // 1. Persist to LocalStorage whenever data changes
@@ -76,25 +84,31 @@ export function useDataStore() {
         };
 
         syncWithCloud();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentUser]); // Sync runs once when user changes (logs in)
 
-    // Helper to push changes to cloud immediately if logged in
-    const pushToCloud = useCallback(async (newData: AppData) => {
+    // 3. Sync with Firestore whenever data changes (debounced)
+    useEffect(() => {
         if (!currentUser) return;
-        try {
-            const userDocRef = doc(db, 'users', currentUser.uid);
-            await setDoc(userDocRef, {
-                history: newData.history.slice(0, 200),
-                activeGame: newData.activeGame || null,
-                preferences: newData.preferences,
-                lastUpdated: serverTimestamp()
-            }, { merge: true });
-        } catch (e) {
-            console.error("Failed to push to cloud", e);
-        }
-    }, [currentUser]);
 
-    const saveGame = (game: Game) => {
+        const timer = setTimeout(async () => {
+            try {
+                const userDocRef = doc(db, 'users', currentUser.uid);
+                await setDoc(userDocRef, {
+                    history: data.history.slice(0, 200),
+                    activeGame: data.activeGame || null,
+                    preferences: data.preferences,
+                    lastUpdated: serverTimestamp()
+                }, { merge: true });
+            } catch (e) {
+                console.error("Failed to sync to cloud", e);
+            }
+        }, 2000); // 2 second debounce
+
+        return () => clearTimeout(timer);
+    }, [data, currentUser]);
+
+    const saveGame = useCallback((game: Game) => {
         setData(prev => {
             const exists = prev.history.find(g => g.id === game.id);
             let newHistory;
@@ -103,32 +117,22 @@ export function useDataStore() {
             } else {
                 newHistory = [game, ...prev.history];
             }
-            const newData = { ...prev, history: newHistory };
-
-            // Trigger cloud save
-            pushToCloud(newData);
-
-            return newData;
+            return { ...prev, history: newHistory };
         });
-    };
+    }, []);
 
-    const deleteGame = (gameId: string) => {
-        setData(prev => {
-            const newData = {
-                ...prev,
-                history: prev.history.filter(g => g.id !== gameId)
-            };
-            pushToCloud(newData);
-            return newData;
-        });
-    };
+    const deleteGame = useCallback((gameId: string) => {
+        setData(prev => ({
+            ...prev,
+            history: prev.history.filter(g => g.id !== gameId)
+        }));
+    }, []);
 
-    const importData = (jsonData: string): boolean => {
+    const importData = useCallback((jsonData: string): boolean => {
         try {
             const parsed = JSON.parse(jsonData);
             if (Array.isArray(parsed.history)) {
                 setData(parsed);
-                pushToCloud(parsed);
                 return true;
             }
             return false;
@@ -136,9 +140,9 @@ export function useDataStore() {
             console.error("Invalid JSON", e);
             return false;
         }
-    };
+    }, []);
 
-    const exportData = () => {
+    const exportData = useCallback(() => {
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -146,15 +150,11 @@ export function useDataStore() {
         a.download = `rummy-backup-${new Date().toISOString().split('T')[0]}.json`;
         a.click();
         URL.revokeObjectURL(url);
-    };
+    }, [data]);
 
     const setActiveGame = useCallback((game: Game | null) => {
-        setData(prev => {
-            const newData = { ...prev, activeGame: game };
-            pushToCloud(newData);
-            return newData;
-        });
-    }, [pushToCloud]);
+        setData(prev => ({ ...prev, activeGame: game }));
+    }, []);
 
     return { data, saveGame, deleteGame, importData, exportData, setActiveGame };
 }
