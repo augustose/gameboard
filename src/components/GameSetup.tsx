@@ -7,9 +7,10 @@ interface GameSetupProps {
     onStartGame: (players: Player[], type: GameType) => void;
     initialPlayers?: Player[]; // For "Rematch" functionality
     initialGameType?: GameType;
+    historicalPlayers?: string[];
 }
 
-export const GameSetup: React.FC<GameSetupProps> = ({ onStartGame, initialPlayers, initialGameType }) => {
+export const GameSetup: React.FC<GameSetupProps> = ({ onStartGame, initialPlayers, initialGameType, historicalPlayers = [] }) => {
     const [gameType, setGameType] = useState<GameType>(initialGameType || 'rummy');
     const [players, setPlayers] = useState<Player[]>(
         initialPlayers || [
@@ -96,6 +97,7 @@ export const GameSetup: React.FC<GameSetupProps> = ({ onStartGame, initialPlayer
                         <div key={player.id} className="flex gap-2">
                             <input
                                 type="text"
+                                list="historical-players"
                                 placeholder={`Player ${index + 1}`}
                                 value={player.name}
                                 onChange={(e) => updateName(player.id, e.target.value)}
@@ -123,6 +125,12 @@ export const GameSetup: React.FC<GameSetupProps> = ({ onStartGame, initialPlayer
                     <Plus size={18} />
                     Add Player
                 </button>
+
+                <datalist id="historical-players">
+                    {historicalPlayers.map(name => (
+                        <option key={name} value={name} />
+                    ))}
+                </datalist>
 
                 <button
                     type="submit"
