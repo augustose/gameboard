@@ -1,17 +1,57 @@
 import React, { useState } from 'react';
 import { Plus, X, Users, PlayCircle, Dna } from 'lucide-react';
-import type { Player, GameType } from '../types';
+import type { Player, GameType, TrucoConfig, TrucoMarkerStyle } from '../types';
 import { generateId } from '../utils/uuid';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface GameSetupProps {
-    onStartGame: (players: Player[], type: GameType) => void;
+    onStartGame: (players: Player[], type: GameType, config?: TrucoConfig) => void;
     initialPlayers?: Player[]; // For "Rematch" functionality
     initialGameType?: GameType;
     historicalPlayers?: string[];
 }
 
+// Truco member input: up to 3 optional members per team, added via Enter, removable as chips.
+// The input is always rendered; once at 3 members, add is a silent no-op.
+const MemberInput: React.FC<{ teamLabel: string; members: string[]; setMembers: (m: string[]) => void; testid: string; }> = ({ teamLabel, members, setMembers, testid }) => {
+    const [value, setValue] = useState('');
+    const add = () => {
+        const v = value.trim();
+        if (v && members.length < 3) { setMembers([...members, v]); setValue(''); }
+    };
+    return (
+        <div className="space-y-1">
+            <div className="text-xs font-semibold text-slate-600">{teamLabel}</div>
+            <div className="flex flex-wrap gap-1">
+                {members.map((m, i) => (
+                    <span key={i} className="px-2 py-1 bg-slate-100 rounded-full text-xs flex items-center gap-1">
+                        {m}
+                        <button type="button" aria-label={`Remove ${m}`} onClick={() => setMembers(members.filter((_, j) => j !== i))} className="text-slate-400 hover:text-red-500">×</button>
+                    </span>
+                ))}
+            </div>
+            <input
+                data-testid={testid}
+                aria-label={teamLabel}
+                value={value}
+                onChange={e => setValue(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); add(); } }}
+                placeholder="+ nombre"
+                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
+        </div>
+    );
+};
+
 export const GameSetup: React.FC<GameSetupProps> = ({ onStartGame, initialPlayers, initialGameType, historicalPlayers = [] }) => {
+    const { t } = useLanguage();
     const [gameType, setGameType] = useState<GameType>(initialGameType || 'rummy');
+
+    // Truco setup state
+    const [target, setTarget] = useState<15 | 30>(30);
+    const [markerStyle, setMarkerStyle] = useState<TrucoMarkerStyle>('square');
+    const [usMembers, setUsMembers] = useState<string[]>([]);
+    const [themMembers, setThemMembers] = useState<string[]>([]);
     const [players, setPlayers] = useState<Player[]>(
         initialPlayers || [
             { id: '1', name: '' },
@@ -67,13 +107,21 @@ export const GameSetup: React.FC<GameSetupProps> = ({ onStartGame, initialPlayer
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        if (gameType === 'truco') {
+            const players: Player[] = [
+                { id: generateId(), name: 'Nosotros', members: usMembers.slice(0, 3) },
+                { id: generateId(), name: 'Ellos', members: themMembers.slice(0, 3) },
+            ];
+            onStartGame(players, 'truco', { targetPoints: target, markerStyle });
+            return;
+        }
         const validPlayers = players.filter(p => p.name.trim() !== '');
         if (validPlayers.length >= 2) {
             onStartGame(validPlayers, gameType);
         }
     };
 
-    const isValid = players.filter(p => p.name.trim() !== '').length >= 2;
+    const isValid = gameType === 'truco' ? true : players.filter(p => p.name.trim() !== '').length >= 2;
     // console.log("Form isValid:", isValid);
 
     return (
@@ -94,9 +142,10 @@ export const GameSetup: React.FC<GameSetupProps> = ({ onStartGame, initialPlayer
                     <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
                         <Dna size={16} /> Game Variant
                     </label>
-                    <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-lg">
+                    <div className="grid grid-cols-3 gap-2 p-1 bg-slate-100 rounded-lg">
                         <button
                             type="button"
+                            aria-pressed={gameType === 'rummy'}
                             onClick={() => setGameType('rummy')}
                             className={`py-2 px-4 rounded-md text-sm font-medium transition-all ${gameType === 'rummy' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'
                                 }`}
@@ -105,15 +154,93 @@ export const GameSetup: React.FC<GameSetupProps> = ({ onStartGame, initialPlayer
                         </button>
                         <button
                             type="button"
+                            aria-pressed={gameType === 'continental'}
                             onClick={() => setGameType('continental')}
                             className={`py-2 px-4 rounded-md text-sm font-medium transition-all ${gameType === 'continental' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'
                                 }`}
                         >
                             Continental
                         </button>
+                        <button
+                            type="button"
+                            aria-pressed={gameType === 'truco'}
+                            onClick={() => setGameType('truco')}
+                            className={`py-2 px-4 rounded-md text-sm font-medium transition-all ${gameType === 'truco' ? 'bg-white text-green-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                                }`}
+                        >
+                            {t.game_truco}
+                        </button>
                     </div>
                 </div>
 
+                {gameType === 'truco' ? (
+                    /* Truco Setup */
+                    <div className="space-y-4">
+                        {/* Target */}
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-slate-700">{t.truco_target}</label>
+                            <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-lg">
+                                <button
+                                    type="button"
+                                    data-testid="truco-target-15"
+                                    aria-pressed={target === 15}
+                                    onClick={() => setTarget(15)}
+                                    className={`py-2 px-4 rounded-md text-sm font-medium transition-all ${target === 15 ? 'bg-white text-green-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                                        }`}
+                                >
+                                    15
+                                </button>
+                                <button
+                                    type="button"
+                                    data-testid="truco-target-30"
+                                    aria-pressed={target === 30}
+                                    onClick={() => setTarget(30)}
+                                    className={`py-2 px-4 rounded-md text-sm font-medium transition-all ${target === 30 ? 'bg-white text-green-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                                        }`}
+                                >
+                                    30
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Marker style */}
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-slate-700">{t.truco_style}</label>
+                            <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-lg">
+                                <button
+                                    type="button"
+                                    data-testid="truco-style-square"
+                                    aria-pressed={markerStyle === 'square'}
+                                    onClick={() => setMarkerStyle('square')}
+                                    className={`py-2 px-4 rounded-md text-sm font-medium transition-all ${markerStyle === 'square' ? 'bg-white text-green-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                                        }`}
+                                >
+                                    {t.truco_style_square}
+                                </button>
+                                <button
+                                    type="button"
+                                    data-testid="truco-style-cup"
+                                    aria-pressed={markerStyle === 'cup'}
+                                    onClick={() => setMarkerStyle('cup')}
+                                    className={`py-2 px-4 rounded-md text-sm font-medium transition-all ${markerStyle === 'cup' ? 'bg-white text-green-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                                        }`}
+                                >
+                                    {t.truco_style_cup}
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Members */}
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
+                                <Users size={16} /> {t.truco_members}
+                            </label>
+                            <MemberInput teamLabel="Nosotros" members={usMembers} setMembers={setUsMembers} testid="truco-members-us" />
+                            <MemberInput teamLabel="Ellos" members={themMembers} setMembers={setThemMembers} testid="truco-members-them" />
+                        </div>
+                    </div>
+                ) : (
+                <>
                 {/* Players List */}
                 <div className="space-y-3">
                     <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
@@ -153,6 +280,8 @@ export const GameSetup: React.FC<GameSetupProps> = ({ onStartGame, initialPlayer
                     <Plus size={18} />
                     Add Player
                 </button>
+                </>
+                )}
 
                 <datalist id="historical-players">
                     {historicalPlayers.map(name => (

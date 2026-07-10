@@ -86,6 +86,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavigate, onStartGame, onImp
                             >
                                 <div className="w-1.5 h-1.5 rounded-full bg-indigo-400"></div> Continental
                             </button>
+                            <button
+                                onClick={() => { onNavigate('home'); onStartGame && onStartGame('truco'); }}
+                                className="w-full text-left text-sm text-slate-500 hover:text-green-600 transition-colors py-1 flex items-center gap-2"
+                            >
+                                <div className="w-1.5 h-1.5 rounded-full bg-green-400"></div> {t.game_truco}
+                            </button>
                         </div>
                     </div>
 
