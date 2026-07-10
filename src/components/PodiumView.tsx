@@ -41,6 +41,14 @@ export const PodiumView: React.FC<PodiumViewProps> = ({ game, onRematch, onHome 
 
     const [winner, second, third] = playerTotals;
 
+    // For truco, show each team's members below its podium bar (when provided).
+    const teamMembers = (p?: { members?: string[] }, testid?: string) =>
+        isTruco && p?.members && p.members.length > 0 ? (
+            <div data-testid={testid} className="mt-2 text-xs text-slate-500 text-center leading-tight max-w-[7rem] mx-auto">
+                {p.members.slice(0, 3).join(', ')}
+            </div>
+        ) : null;
+
     return (
         <div className="flex flex-col items-center justify-center py-10 animate-in zoom-in-50 duration-500">
             <div className="mb-8 text-center">
@@ -71,6 +79,7 @@ export const PodiumView: React.FC<PodiumViewProps> = ({ game, onRematch, onHome 
                         <div className="w-full h-24 bg-slate-200 rounded-t-lg flex items-center justify-center text-2xl font-bold text-slate-400 shadow-inner">
                             2
                         </div>
+                        {teamMembers(second)}
                     </div>
                 )}
 
@@ -84,6 +93,7 @@ export const PodiumView: React.FC<PodiumViewProps> = ({ game, onRematch, onHome 
                     <div className="w-full h-32 bg-yellow-400 rounded-t-xl flex items-center justify-center text-4xl font-bold text-white shadow-lg shadow-yellow-200">
                         1
                     </div>
+                    {teamMembers(winner, 'podium-winner-members')}
                 </div>
 
                 {/* Third Place */}
@@ -96,6 +106,7 @@ export const PodiumView: React.FC<PodiumViewProps> = ({ game, onRematch, onHome 
                         <div className="w-full h-16 bg-orange-100 rounded-t-lg flex items-center justify-center text-xl font-bold text-orange-300 shadow-inner">
                             3
                         </div>
+                        {teamMembers(third)}
                     </div>
                 )}
             </div>

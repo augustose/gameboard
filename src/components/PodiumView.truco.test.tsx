@@ -22,6 +22,20 @@ describe('PodiumView (truco)', () => {
     expect(winner).toHaveTextContent('Nosotros');
     expect(winner).toHaveTextContent('30');
   });
+
+  it('shows each team\'s members below its podium bar (when provided)', () => {
+    const g = completedTruco();
+    g.players[0].members = ['Augusto', 'Juan']; // nosotros (winner)
+    g.players[1].members = ['Pedro'];           // ellos (second)
+    render(<PodiumView game={g} onRematch={() => {}} onHome={() => {}} />);
+    expect(screen.getByTestId('podium-winner-members')).toHaveTextContent('Augusto, Juan');
+    expect(screen.getByText('Pedro')).toBeInTheDocument();
+  });
+
+  it('renders no member line for teams without members', () => {
+    render(<PodiumView game={completedTruco()} onRematch={() => {}} onHome={() => {}} />);
+    expect(screen.queryByTestId('podium-winner-members')).toBeNull();
+  });
 });
 
 describe('PodiumView (rummy, regression)', () => {
