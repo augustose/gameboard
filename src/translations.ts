@@ -39,6 +39,21 @@ export const translations = {
         game_rummy: "Rummy",
         game_continental: "Continental",
 
+        // Truco
+        game_truco: "Truco",
+        truco_malas: "Malas",
+        truco_buenas: "Buenas",
+        truco_undo: "Undo",
+        truco_target: "Target",
+        truco_style: "Marker style",
+        truco_style_square: "Square",
+        truco_style_cup: "Cup",
+        truco_members: "Members (optional, max 3)",
+        truco_winner: "won!",
+        stats_truco_games: "Truco Games",
+        about_truco_note_title: "Why Truco?",
+        about_truco_note_text: "My brother Adrián told me he plays truco and would love to have it as an option. And since I love him dearly because he is a great man, I decided to implement it. This one is for you, Adrián.",
+
         // History
         history_title: "Game History",
         history_empty: "No played games yet.",
@@ -122,6 +137,21 @@ export const translations = {
         rounds_title: "Rondas",
         game_rummy: "Rummy",
         game_continental: "Continental",
+
+        // Truco
+        game_truco: "Truco",
+        truco_malas: "Malas",
+        truco_buenas: "Buenas",
+        truco_undo: "Deshacer",
+        truco_target: "Objetivo",
+        truco_style: "Estilo de marcador",
+        truco_style_square: "Cuadrado",
+        truco_style_cup: "Copa",
+        truco_members: "Integrantes (opcional, máx 3)",
+        truco_winner: "¡ganó!",
+        stats_truco_games: "Juegos Truco",
+        about_truco_note_title: "¿Por qué Truco?",
+        about_truco_note_text: "Mi hermano Adrián me dijo que él juega al truco y que le gustaría tenerlo como opción. Y como lo quiero mucho porque es un grande, decidí implementarlo. Esta va para vos, Adrián.",
 
         // History
         history_title: "Historial de Juegos",
