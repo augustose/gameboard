@@ -75,7 +75,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ history, onImport, onE
                         >
                             <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-1">
-                                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${game.type === 'continental' ? 'bg-indigo-100 text-indigo-700' : 'bg-blue-100 text-blue-700'
+                                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${game.type === 'truco' ? 'bg-green-100 text-green-700' : game.type === 'continental' ? 'bg-indigo-100 text-indigo-700' : 'bg-blue-100 text-blue-700'
                                         }`}>
                                         {game.type}
                                     </span>
@@ -92,6 +92,14 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ history, onImport, onE
                                 <div className="font-medium text-slate-700">
                                     {game.players.map(p => p.name).join(', ')}
                                 </div>
+                                {game.players.some(p => p.members && p.members.length > 0) && (
+                                    <div className="text-xs text-slate-400 mt-0.5">
+                                        {game.players
+                                            .filter(p => p.members && p.members.length > 0)
+                                            .map(p => `${p.name}: ${p.members!.slice(0, 3).join(', ')}`)
+                                            .join(' · ')}
+                                    </div>
+                                )}
                             </div>
 
                             <div className="flex items-center gap-3">

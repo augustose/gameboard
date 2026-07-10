@@ -43,7 +43,7 @@ export const Scoreboard: React.FC<ScoreboardProps> = ({ game, onAddRound, onUpda
             {/* Game Info */}
             <div className="flex items-center justify-between px-2">
                 <div className="flex items-center gap-2 text-sm text-slate-500">
-                    <span className={`px-2 py-0.5 rounded font-bold uppercase tracking-wider text-xs ${game.type === 'continental' ? 'bg-indigo-100 text-indigo-700' : 'bg-blue-100 text-blue-700'
+                    <span className={`px-2 py-0.5 rounded font-bold uppercase tracking-wider text-xs ${game.type === 'truco' ? 'bg-green-100 text-green-700' : game.type === 'continental' ? 'bg-indigo-100 text-indigo-700' : 'bg-blue-100 text-blue-700'
                         }`}>
                         {game.type}
                     </span>

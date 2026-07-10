@@ -24,6 +24,10 @@ export const StatsView: React.FC<StatsViewProps> = ({ history }) => {
     const playerStats: Record<string, PlayerStat> = {};
 
     history.forEach(game => {
+        // Truco teams are "Nosotros"/"Ellos" (not real people); never attribute
+        // truco wins/plays to the individual player leaderboard.
+        if (game.type === 'truco') return;
+
         // Calculate totals for this game
         const gameTotals = game.players.map(p => {
             const points = game.rounds.reduce((sum, r) => sum + (r.scores.find(s => s.playerId === p.id)?.points || 0), 0);
@@ -86,6 +90,10 @@ export const StatsView: React.FC<StatsViewProps> = ({ history }) => {
                 <div className="bg-indigo-50 p-6 rounded-xl shadow-sm border border-indigo-100 hidden lg:block">
                     <div className="text-indigo-500 text-xs font-bold uppercase tracking-wider mb-1">{t.stats_continental_games}</div>
                     <div className="text-3xl font-bold text-indigo-800">{history.filter(g => g.type === 'continental').length}</div>
+                </div>
+                <div data-testid="stat-truco-count" className="bg-green-50 p-6 rounded-xl shadow-sm border border-green-100">
+                    <div className="text-green-500 text-xs font-bold uppercase tracking-wider mb-1">{t.stats_truco_games}</div>
+                    <div className="text-3xl font-bold text-green-800">{history.filter(g => g.type === 'truco').length}</div>
                 </div>
             </div>
 
