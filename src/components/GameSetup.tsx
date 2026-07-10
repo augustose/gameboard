@@ -25,8 +25,34 @@ export const GameSetup: React.FC<GameSetupProps> = ({ onStartGame, initialPlayer
         }
     }, [initialGameType]);
 
+    // When set, an effect focuses the matching player input after the next
+    // render (used when Enter adds a brand-new player row).
+    const [focusPlayerId, setFocusPlayerId] = useState<string | null>(null);
+
+    React.useEffect(() => {
+        if (focusPlayerId) {
+            document.getElementById(`player-input-${focusPlayerId}`)?.focus();
+            setFocusPlayerId(null);
+        }
+    }, [players, focusPlayerId]);
+
     const addPlayer = () => {
         setPlayers([...players, { id: generateId(), name: '' }]);
+    };
+
+    // Enter moves to the next player's name input; on the last row it creates a
+    // new player and focuses it so names can be entered one after another.
+    const handleNameKeyDown = (e: React.KeyboardEvent, index: number) => {
+        if (e.key !== 'Enter') return;
+        e.preventDefault(); // don't submit the form while chaining through names
+        const nextPlayer = players[index + 1];
+        if (nextPlayer) {
+            document.getElementById(`player-input-${nextPlayer.id}`)?.focus();
+        } else {
+            const newPlayer = { id: generateId(), name: '' };
+            setPlayers([...players, newPlayer]);
+            setFocusPlayerId(newPlayer.id);
+        }
     };
 
     const removePlayer = (id: string) => {
@@ -96,11 +122,13 @@ export const GameSetup: React.FC<GameSetupProps> = ({ onStartGame, initialPlayer
                     {players.map((player, index) => (
                         <div key={player.id} className="flex gap-2">
                             <input
+                                id={`player-input-${player.id}`}
                                 type="text"
                                 list="historical-players"
                                 placeholder={`Player ${index + 1}`}
                                 value={player.name}
                                 onChange={(e) => updateName(player.id, e.target.value)}
+                                onKeyDown={(e) => handleNameKeyDown(e, index)}
                                 className="flex-1 px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium"
                                 autoFocus={index === 0 && !initialPlayers}
                             />
