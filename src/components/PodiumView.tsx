@@ -33,10 +33,11 @@ export const PodiumView: React.FC<PodiumViewProps> = ({ game, onRematch, onHome 
         return () => clearInterval(interval);
     }, []);
 
+    const isTruco = game.type === 'truco';
     const playerTotals = game.players.map(p => ({
         ...p,
         total: game.rounds.reduce((sum, r) => sum + (r.scores.find(s => s.playerId === p.id)?.points || 0), 0)
-    })).sort((a, b) => a.total - b.total); // Ascending for Rummy (lowest wins)
+    })).sort((a, b) => isTruco ? b.total - a.total : a.total - b.total); // Truco: highest wins; Rummy: lowest wins
 
     const [winner, second, third] = playerTotals;
 
@@ -74,7 +75,7 @@ export const PodiumView: React.FC<PodiumViewProps> = ({ game, onRematch, onHome 
                 )}
 
                 {/* Winner */}
-                <div className="flex flex-col items-center w-1/3 z-10 -mx-2">
+                <div data-testid="podium-winner" className="flex flex-col items-center w-1/3 z-10 -mx-2">
                     <div className="mb-2 text-center">
                         <Trophy className="w-8 h-8 text-yellow-500 mx-auto mb-1" fill="currentColor" />
                         <span className="block font-bold text-slate-800 text-lg truncate w-28 mx-auto">{winner.name}</span>
