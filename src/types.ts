@@ -2,7 +2,7 @@ export interface Player {
     id: string;
     name: string;
     avatar?: string;
-    // Allows persisting player stats across games if needed later
+    members?: string[];      // truco only: team members (traceability), max 3, not scored individually
 }
 
 export interface Score {
@@ -17,7 +17,14 @@ export interface Round {
     timestamp: number;
 }
 
-export type GameType = 'rummy' | 'continental';
+export type GameType = 'rummy' | 'continental' | 'truco';
+
+export type TrucoMarkerStyle = 'square' | 'cup';
+
+export interface TrucoConfig {
+    targetPoints: 15 | 30;
+    markerStyle: TrucoMarkerStyle;
+}
 
 export interface Game {
     id: string;
@@ -29,6 +36,7 @@ export interface Game {
     players: Player[];
     rounds: Round[];
     hostId: string;
+    config?: TrucoConfig;    // truco only
 }
 
 export interface AppData {
