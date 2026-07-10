@@ -41,6 +41,11 @@ export const AboutView: React.FC = () => {
                     </p>
                 </div>
 
+                <div className="bg-green-50 p-4 rounded-lg my-6 border-l-4 border-green-500">
+                    <h4 className="font-bold text-slate-800 mb-2 text-lg">{t.about_truco_note_title}</h4>
+                    <p className="text-slate-700 italic">"{t.about_truco_note_text}"</p>
+                </div>
+
                 <h4 className="font-bold text-slate-700 mt-6 mb-2">{t.about_thanks_title}</h4>
                 <p className="text-slate-600 text-sm leading-relaxed">
                     {t.about_thanks_list}
