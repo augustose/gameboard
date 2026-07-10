@@ -16,6 +16,7 @@ import { useWakeLock } from './hooks/useWakeLock';
 import type { Game, Player, Score, Round, GameType, TrucoConfig } from './types';
 import { generateId } from './utils/uuid';
 import { addTrucoPoint, undoLastTrucoPoint, trucoWinnerId } from './lib/truco';
+import { historicalPlayerNames } from './lib/history';
 import { useLanguage } from './contexts/LanguageContext';
 
 const Dashboard = () => {
@@ -23,17 +24,7 @@ const Dashboard = () => {
   const { t } = useLanguage();
   const { requestLock, releaseLock } = useWakeLock();
 
-  const historicalPlayers = useMemo(() => {
-    const names = new Set<string>();
-    data.history.forEach(game => {
-      game.players.forEach(player => {
-        if (player.name.trim()) {
-          names.add(player.name.trim());
-        }
-      });
-    });
-    return Array.from(names).sort((a, b) => a.localeCompare(b));
-  }, [data.history]);
+  const historicalPlayers = useMemo(() => historicalPlayerNames(data.history), [data.history]);
 
   const [view, setView] = useState<'landing' | 'home' | 'history' | 'stats' | 'about'>('landing');
   const [selectedGameType, setSelectedGameType] = useState<GameType>('rummy');

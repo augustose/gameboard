@@ -14,6 +14,7 @@ interface GameSetupProps {
 // Truco member input: up to 3 optional members per team, added via Enter, removable as chips.
 // The input is always rendered; once at 3 members, add is a silent no-op.
 const MemberInput: React.FC<{ teamLabel: string; members: string[]; setMembers: (m: string[]) => void; testid: string; }> = ({ teamLabel, members, setMembers, testid }) => {
+    const { t } = useLanguage();
     const [value, setValue] = useState('');
     const add = () => {
         const v = value.trim();
@@ -26,7 +27,7 @@ const MemberInput: React.FC<{ teamLabel: string; members: string[]; setMembers: 
                 {members.map((m, i) => (
                     <span key={i} className="px-2 py-1 bg-slate-100 rounded-full text-xs flex items-center gap-1">
                         {m}
-                        <button type="button" aria-label={`Remove ${m}`} onClick={() => setMembers(members.filter((_, j) => j !== i))} className="text-slate-400 hover:text-red-500">×</button>
+                        <button type="button" aria-label={`${t.truco_member_remove} ${m}`} onClick={() => setMembers(members.filter((_, j) => j !== i))} className="text-slate-400 hover:text-red-500">×</button>
                     </span>
                 ))}
             </div>
@@ -36,7 +37,7 @@ const MemberInput: React.FC<{ teamLabel: string; members: string[]; setMembers: 
                 value={value}
                 onChange={e => setValue(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); add(); } }}
-                placeholder="+ nombre"
+                placeholder={t.truco_member_placeholder}
                 className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
             />
         </div>
