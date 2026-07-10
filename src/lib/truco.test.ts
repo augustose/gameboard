@@ -4,6 +4,8 @@ import {
   splitMalasBuenas,
   teamTotal,
   trucoWinnerId,
+  addTrucoPoint,
+  undoLastTrucoPoint,
 } from './truco';
 import type { Game, Player } from '../types';
 
@@ -77,5 +79,37 @@ describe('trucoWinnerId', () => {
   it('resolves a tie by players array order (both at/over target)', () => {
     const g = gameWith({ nosotros: 30, ellos: 30 }, 30);
     expect(trucoWinnerId(g)).toBe('nosotros');
+  });
+});
+
+describe('addTrucoPoint', () => {
+  it('appends a +1 round for the team and bumps updatedAt', () => {
+    const g = gameWith({ nosotros: 2, ellos: 0 });
+    const next = addTrucoPoint(g, 'nosotros', 'new-round', 999);
+    expect(next.rounds).toHaveLength(g.rounds.length + 1);
+    expect(next.rounds[next.rounds.length - 1]).toMatchObject({
+      id: 'new-round', scores: [{ playerId: 'nosotros', points: 1 }], timestamp: 999,
+    });
+    expect(teamTotal(next, 'nosotros')).toBe(3);
+    expect(next.updatedAt).toBe(999);
+    // original not mutated
+    expect(g.rounds).toHaveLength(2);
+  });
+});
+
+describe('undoLastTrucoPoint', () => {
+  it('removes the team\'s most recent +1 round', () => {
+    const g = gameWith({ nosotros: 3, ellos: 1 });
+    const next = undoLastTrucoPoint(g, 'nosotros', 999);
+    expect(teamTotal(next, 'nosotros')).toBe(2);
+    expect(teamTotal(next, 'ellos')).toBe(1);
+    expect(next.updatedAt).toBe(999);
+    expect(g.rounds).toHaveLength(4); // original untouched
+  });
+  it('is a no-op when the team has no points', () => {
+    const g = gameWith({ nosotros: 0, ellos: 2 });
+    const next = undoLastTrucoPoint(g, 'nosotros', 999);
+    expect(next.rounds).toHaveLength(g.rounds.length);
+    expect(teamTotal(next, 'ellos')).toBe(2);
   });
 });

@@ -1,4 +1,4 @@
-import type { Game } from '../types';
+import type { Game, Round } from '../types';
 
 /**
  * Split a point count into groups of 5 strokes each.
@@ -42,4 +42,27 @@ export function trucoWinnerId(game: Game): string | null {
     if (teamTotal(game, p.id) >= target) return p.id;
   }
   return null;
+}
+
+/** Append a +1 round for a team (pure — caller supplies id/now for determinism). */
+export function addTrucoPoint(game: Game, playerId: string, roundId: string, now: number): Game {
+  const newRound: Round = {
+    id: roundId,
+    roundNumber: game.rounds.length + 1,
+    scores: [{ playerId, points: 1 }],
+    timestamp: now,
+  };
+  return { ...game, rounds: [...game.rounds, newRound], updatedAt: now };
+}
+
+/** Remove a team's most recent +1 round. No-op (returns game unchanged) if the team has none. */
+export function undoLastTrucoPoint(game: Game, playerId: string, now: number): Game {
+  const rounds = [...game.rounds];
+  for (let i = rounds.length - 1; i >= 0; i--) {
+    if (rounds[i].scores.some(s => s.playerId === playerId)) {
+      rounds.splice(i, 1);
+      return { ...game, rounds, updatedAt: now };
+    }
+  }
+  return game; // nothing removed
 }

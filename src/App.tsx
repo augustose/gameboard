@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { GameSetup } from './components/GameSetup';
 import { Scoreboard } from './components/Scoreboard';
+import { TrucoScoreboard } from './components/TrucoScoreboard';
 import { PodiumView } from './components/PodiumView';
 import { HistoryView } from './components/HistoryView';
 import { StatsView } from './components/StatsView';
@@ -12,8 +13,9 @@ import { BottomNav } from './components/BottomNav';
 import { LandingView } from './components/LandingView';
 import { useDataStore } from './hooks/useDataStore';
 import { useWakeLock } from './hooks/useWakeLock';
-import type { Game, Player, Score, Round, GameType } from './types';
+import type { Game, Player, Score, Round, GameType, TrucoConfig } from './types';
 import { generateId } from './utils/uuid';
+import { addTrucoPoint, undoLastTrucoPoint, trucoWinnerId } from './lib/truco';
 import { useLanguage } from './contexts/LanguageContext';
 
 const Dashboard = () => {
@@ -54,7 +56,7 @@ const Dashboard = () => {
     }
   }, [activeGame?.status, requestLock, releaseLock]);
 
-  const startGame = (players: Player[], type: GameType) => {
+  const startGame = (players: Player[], type: GameType, config?: TrucoConfig) => {
     const now = Date.now();
     const newGame: Game = {
       id: generateId(),
@@ -64,7 +66,8 @@ const Dashboard = () => {
       type,
       players,
       rounds: [],
-      hostId: 'local-user'
+      hostId: 'local-user',
+      ...(config ? { config } : {}),
     };
     setActiveGame(newGame);
     setView('home');
@@ -98,7 +101,25 @@ const Dashboard = () => {
 
   const handleRematch = () => {
     if (!activeGame) return;
-    startGame(activeGame.players, activeGame.type);
+    startGame(activeGame.players, activeGame.type, activeGame.config);
+  };
+
+  const handleAddTrucoPoint = (playerId: string) => {
+    if (!activeGame) return;
+    const now = Date.now();
+    const updated = addTrucoPoint(activeGame, playerId, generateId(), now);
+    if (trucoWinnerId(updated)) {
+      const completed: Game = { ...updated, status: 'completed', endedAt: now };
+      saveGame(completed);
+      setActiveGame(completed);
+    } else {
+      setActiveGame(updated);
+    }
+  };
+
+  const handleUndoTrucoPoint = (playerId: string) => {
+    if (!activeGame) return;
+    setActiveGame(undoLastTrucoPoint(activeGame, playerId, Date.now()));
   };
 
   const handleAddRound = (scores: Score[]) => {
@@ -183,6 +204,16 @@ const Dashboard = () => {
           game={activeGame}
           onRematch={handleRematch}
           onHome={() => setActiveGame(null)}
+        />
+      );
+    }
+
+    if (activeGame.type === 'truco') {
+      return (
+        <TrucoScoreboard
+          game={activeGame}
+          onAddPoint={handleAddTrucoPoint}
+          onUndo={handleUndoTrucoPoint}
         />
       );
     }
