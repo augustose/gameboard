@@ -18,6 +18,16 @@ export const InlineRoundInput: React.FC<InlineRoundInputProps> = ({ players, rou
         }
     };
 
+    // iOS numeric keypads never include a minus sign, so we provide an explicit
+    // "±" button that flips the sign of the current value.
+    const toggleSign = (playerId: string) => {
+        setScores(prev => {
+            const current = prev[playerId] || '';
+            const next = current.startsWith('-') ? current.slice(1) : `-${current}`;
+            return { ...prev, [playerId]: next };
+        });
+    };
+
     const handleKeyDown = (e: React.KeyboardEvent, playerId: string) => {
         if (e.key === 'Enter') {
             const currentIndex = players.findIndex(p => p.id === playerId);
@@ -56,17 +66,31 @@ export const InlineRoundInput: React.FC<InlineRoundInputProps> = ({ players, rou
             </td>
             {players.map(p => (
                 <td key={p.id} className="px-2 py-2">
-                    <input
-                        id={`inline-score-${p.id}`}
-                        type="text"
-                        inputMode="text"
-                        pattern="^-?[0-9]*$"
-                        placeholder="0"
-                        value={scores[p.id] || ''}
-                        onChange={(e) => handleScoreChange(p.id, e.target.value)}
-                        onKeyDown={(e) => handleKeyDown(e, p.id)}
-                        className="w-full text-right bg-white border border-blue-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-400 font-mono text-slate-800 shadow-sm placeholder:text-slate-300"
-                    />
+                    <div className="flex items-center gap-1">
+                        <button
+                            type="button"
+                            // preventDefault on mousedown keeps the input focused so the
+                            // numeric keyboard stays open when tapping the sign toggle.
+                            onMouseDown={(e) => e.preventDefault()}
+                            onClick={() => toggleSign(p.id)}
+                            className="shrink-0 w-8 h-9 flex items-center justify-center rounded-lg bg-slate-100 text-slate-500 hover:bg-slate-200 active:bg-slate-300 font-bold text-base transition-colors"
+                            title="Cambiar signo (+/−)"
+                            aria-label="Cambiar signo"
+                        >
+                            ±
+                        </button>
+                        <input
+                            id={`inline-score-${p.id}`}
+                            type="text"
+                            inputMode="numeric"
+                            pattern="^-?[0-9]*$"
+                            placeholder="0"
+                            value={scores[p.id] || ''}
+                            onChange={(e) => handleScoreChange(p.id, e.target.value)}
+                            onKeyDown={(e) => handleKeyDown(e, p.id)}
+                            className="w-full min-w-0 flex-1 text-right bg-white border border-blue-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-400 font-mono text-slate-800 shadow-sm placeholder:text-slate-300"
+                        />
+                    </div>
                 </td>
             ))}
             <td className="px-2 py-2 w-10">
